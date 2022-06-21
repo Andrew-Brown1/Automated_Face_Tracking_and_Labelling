@@ -7,10 +7,6 @@ a) use Smooth-AP (and cite it at the bottom)
 
 b) do not extract all of the frames (or maybe do, who cares - do not do unecessary extra work, and for very long videos it makes sense because can't load the whole video into RAM)
 
-c) get all model related files into one directory - also try 
-
-d) calls upon several different models - make this clear and link to the GitHubs 
-
 2) clean it up 
 
 3) remove all of the excess code 
