@@ -19,15 +19,13 @@ Code for the paper "Automated Video Labelling: Identifying Faces by Corroborativ
 
 ## Paper
 
-If you find VPCD, or the code useful, please consider citing:
+If you find this repository useful, please consider citing:
 
 ```
-@misc{brown2021face,
-      title={Face, Body, Voice: Video Person-Clustering with Multiple Modalities}, 
-      author={Andrew Brown and Vicky Kalogeiton and Andrew Zisserman},
-      year={2021},
-      eprint={2105.09939},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@InProceedings{Brown21,
+    title={Automated Video Labelling: Identifying Faces by Corroborative Evidence},
+    author={Andrew Brown and Ernesto Coto and Andrew Zisserman},
+    year={2021},
+    booktitle={Multimedia Information Processing and Retrieval (MIPR)}
 }
 ```
