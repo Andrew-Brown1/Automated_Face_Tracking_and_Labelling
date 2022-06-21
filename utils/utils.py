@@ -5,7 +5,40 @@ import scipy
 import cv2
 import numpy as np
 
+import inspect
 
+
+class AttrDict(dict):
+    def __getattr__(self, name):
+        if name in self.__dict__:
+            return self.__dict__[name]
+        elif name in self:
+            return self[name]
+        else:
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
+        if name in self.__dict__:
+            self.__dict__[name] = value
+        else:
+            self[name] = value
+            
+            
+def auto_init_args(obj, tgt=None, can_overwrite=False):
+    # autoassign constructor arguments
+    frame = inspect.currentframe().f_back  # the frame above
+    params = frame.f_locals
+    nparams = frame.f_code.co_argcount
+    paramnames = frame.f_code.co_varnames[1:nparams]
+    if tgt is not None:
+        if not can_overwrite:
+            assert not hasattr(obj, tgt)
+        setattr(obj, tgt, AttrDict())
+        tgt_attr = getattr(obj, tgt)
+    else:
+        tgt_attr = obj
+        
+        
 class Timer:
     def __init__(self):
         self.time = 0
