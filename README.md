@@ -15,7 +15,7 @@ Code for the paper "Automated Video Labelling: Identifying Faces by Corroborativ
 
 7) get it cleaned
 
-8) get a README
+8) get a README with all of the informaiton
 
 ## Paper
 
