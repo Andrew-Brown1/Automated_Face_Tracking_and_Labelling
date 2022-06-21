@@ -1,4 +1,4 @@
-# Person_Track_and_Label
+# Automated_Face_Tracking_Labelling
 Code for the paper "Automated Video Labelling: Identifying Faces by Corroborative Evidence"
 
 1) get the code for tracking and recognising faces 
