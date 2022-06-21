@@ -13,17 +13,6 @@ import Tracker
 import models
 import utils
 
-
-from MakeVideo import MakeVideos
-
-
-# from processes import detect_faces, Extract_Features
-
-# from Track import Track
-
-
-# from utils import getListOfFiles
-# from retinaface import cfg_mnet, load_model, RetinaFace
 device = torch.device("cuda")
 
 ############################################## TO DO ########################################################
@@ -31,20 +20,6 @@ device = torch.device("cuda")
 # 1) change the aspect ratio constraint - currently all vidoes are exctracted at the same aspect ratio - this 
 # is first used when extracting the frames and then I think it is propogated to how the detections are scaled.
 # This should be changed such that each individual video is extracted at its actual aspect ratio. 
-
-# Furthermore - the "down_res" argment is too specific - this should depend on the original resoltion of the video
-# A fix to this would be to extract the original resolution and aspect ratio and then choose the down_res from there.
-# it might be the case that if the video is a really low resolution anyway then you shouldn't down res it even furhter.
-
-# there is the problem now that if I am looking at the face detections of past tracks, I don't know what res they were 
-# extracted at and they are not normalised.
-
-# 2) add syncnet capability - this should take the tracked faces and then return a wav file for each (where possible) 
-# this wav file only exists if the syncnet provided ASD confirms that they are talking - and only for the proportion 
-# of the track that they are talking in.
-
-# 3) read the whole video into RAM in each iteration, then have every subsequent part of the process read the frames 
-# from RAM - this will speed everything up massively. 
 
 ############################################################################################################
 
@@ -59,7 +34,6 @@ if __name__ == '__main__':
                         type=str)
     # options
     parser.add_argument('--make_video', default=False, help='output the video of face tracks ', type=bool)
-    parser.add_argument('--save_face_dets', default='', help='save the face dets or not (advisable for long vids)', type=str)
     parser.add_argument('--down_res', default=0.5, help='lower the resolution of the frames for the detection process to speed everything up', type=float)
     parser.add_argument('--verbose', default=True, help='print timings throughout processing', type=bool)
     # system
@@ -74,7 +48,7 @@ if __name__ == '__main__':
                         help='Trained state_dict file path to open for recognition model')
     args = parser.parse_args()
 
-    # OG_down_res = copy.deepcopy(args.down_res)
+    args.OG_temp_dir = copy.deepcopy(args.temp_dir)
 
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
     print("Using GPUs: ", os.environ['CUDA_VISIBLE_DEVICES'])
@@ -120,21 +94,27 @@ if __name__ == '__main__':
     # ================================================================================================
     
     timer = utils.Timer()
-    
+        
     with torch.no_grad():
         for ind, full_episode in enumerate(file_paths):
             print('video ' + str(ind) + ' of ' + str(len(file_paths)))
-            
+
             # ----------------------------------------------------------
             # create local paths and variables for this video
             # ----------------------------------------------------------
             
             episode = full_episode.split('/')[-1]
 
-            save_path = os.path.join(args.save_path,full_episode[(len(args.path_to_vids)+1):-(len(episode))])
+            save_path = os.path.join(args.save_path,episode[:-4])
+            if not os.path.isdir(save_path):
+                os.mkdir(save_path)
             
             temp_file_name = ''.join(full_episode[(len(args.path_to_vids)+1):-(len(episode))].split('/'))+episode
 
+            args.temp_dir = os.path.join(args.OG_temp_dir,episode[:-4])
+            if not os.path.isdir(args.temp_dir):
+                os.mkdir(args.temp_dir)
+                
             # make the full save path if it doesn't exist
             if not os.path.isdir(save_path):
                 save_folder = Path(save_path)
@@ -142,7 +122,7 @@ if __name__ == '__main__':
 
             # do not continue if:
             proceed = True
-            if not os.path.isfile(os.path.join(save_path, episode + '.pickle')):
+            if os.path.isfile(os.path.join(save_path, episode + '.pickle')):
                 # this video has already been processed
                 proceed = False
 
@@ -179,14 +159,8 @@ if __name__ == '__main__':
                 timer._start('detecting faces',args.verbose)
                 
                 detection_dict = models.detect_faces(args, temp_file_name, net, device)
-
-                if args.save_face_dets:
-                    # save the face dets
-                    with open(os.path.join(args.save_face_dets, temp_file_name+'fdets.pk'),'wb') as f:
-                        pickle.dump(detection_dict, f)
                         
                 timer._log_end('detecting faces', args.verbose)
-
                 
                 # ----------------------------------------------------------
                 # (3) extract ID discriminating features
@@ -204,29 +178,18 @@ if __name__ == '__main__':
                 # ----------------------------------------------------------
                 timer._start('tracking faces',args.verbose)
 
-                output_tracks, track_features = Tracker.Track(TrackInfo)
+                Tracker.Track(TrackInfo, os.path.join(save_path, episode))
                 
-                
-                # save the face-tracks
-                with open(os.path.join(save_path,episode+'.pickle'),'wb') as f:
-                    pickle.dump(output_tracks, f)
-                with open(os.path.join(save_path,episode+'_TrackFeats.pk'),'wb') as f:
-                    pickle.dump(track_features, f)
-                
-                
+                timer._log_end('tracking faces', args.verbose)
                 # ----------------------------------------------------------
-                # (4) optionally save a video of the face-tracks 
-                # TODO: (1) add audio to the video 
-                # TODO: (2) make sure that this works with down-res
+                # (5) optionally save a video of the face-tracks 
                 # ----------------------------------------------------------
-                MakeVideos([episode], args.temp_dir, save_path, syncnet=False)
-                pdb.set_trace()
+                                
                 if args.make_video:
-                    MakeVideos([episode], args.temp_dir, save_path, syncnet=False)
+                    utils.MakeVideo(episode, args.temp_dir, save_path, full_episode, fps=vid_fps)
+                
+                # ----------------------------------------------------------
+                # (6) delete temporary written files
+                # ----------------------------------------------------------
+                os.system('rm -R '+ args.temp_dir)
 
-
-
-
-
-    very_end = time.time()
-    pdb.set_trace()

@@ -12,7 +12,7 @@ import math
 import itertools
 
 
-def Track(Info, num_zeros=6, MatchThreshold=0.3, LinkThreshold=0.85, RemoveSmallTracks=True, InterpDistance=5):
+def Track(Info, save_path, num_zeros=6, MatchThreshold=0.3, LinkThreshold=0.85, RemoveSmallTracks=True, InterpDistance=5):
     
     max = 0
     
@@ -149,12 +149,10 @@ def Track(Info, num_zeros=6, MatchThreshold=0.3, LinkThreshold=0.85, RemoveSmall
     
     # write the tracks
 
-    output_tracks, track_features = WriteTracks(Tracks, Info, num_zeros=num_zeros)
-
-    return output_tracks, track_features
+    WriteTracks(Tracks, Info, save_path, num_zeros=num_zeros)
 
 
-def WriteTracks(Tracks, Info, OriginalNames = None, num_zeros=5):
+def WriteTracks(Tracks, Info, save_path, OriginalNames = None, num_zeros=5):
     # write the tracks to an interpretable format
 
     # make a list with information about each detection.
@@ -195,11 +193,22 @@ def WriteTracks(Tracks, Info, OriginalNames = None, num_zeros=5):
         tempfeat = []
 
     output_tracks = []
-    for Detection in DetectionInfo:
-        Det = Detection
-        output_tracks.append(Det[10])
+    
+    with open(save_path[:-4]+'.txt', 'w+') as f:
 
-    return output_tracks, track_features
+        for Detection in DetectionInfo:
+            Det = Detection
+            f.write(
+                str(Det[0]) + ',' + str(Det[1]) + ',' + str(Det[2]) + ',' + str(Det[3]) + ',' + str(Det[4]) + ',' + str(
+                    Det[5])
+                + ',1,-1,-1,' + str(Det[9])+','+str(Det[11][0])+','+str(Det[11][1])+','+str(Det[11][2])+','+str(Det[11][3]))
+            f.write('\n')
+            output_tracks.append(Det[10])
+            
+    with open(save_path[:-4]+'.pickle','wb') as f:
+        pickle.dump(output_tracks, f)
+    with open(save_path[:-4]+'_TrackFeats.pk','wb') as f:
+        pickle.dump(track_features, f)
 
 
 def InterpolateMissingFrames(Tracks, Info, InterpDistance, num_zeros):
