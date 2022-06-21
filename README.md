@@ -1,25 +1,30 @@
 # Automated_Face_Tracking_and_Labelling
 Code for the paper "Automated Video Labelling: Identifying Faces by Corroborative Evidence"
 
-1) get the code for tracking and recognising faces 
+1) finish off the tracking code 
 
 a) use Smooth-AP (and cite it at the bottom)
 
-b) do not extract all of the frames (or maybe do, who cares - do not do unecessary extra work, and for very long videos it makes sense because can't load the whole video into RAM)
+2) get the code to go from the tracking outputs to the inputs that the annotator takes (in some BBC ICMR folder somewhere)
 
-2) clean it up 
+3) code to go from directory of messy person images, to "clean" face vectors. 
 
-3) remove all of the excess code 
+(a) make it a feature that the repo can also just detect faces and extract feats from directory of images without the "cleaning"
 
-4) get it working a little better
+4) annotation code, which annotates the videos with the names from the directories, including the query expansion
 
-5) get the code to go from a directory of messy person images to a "clean" dictionary of face vectors 
+5) processing scripts
 
-6) get the annotation code for annotating the people from these face dictionaries (with query expansion)
+(a) full pipeline of everything from directories of images and videos 
 
-7) get it cleaned
+(b) individual pipelines for:
 
-8) get a README with all of the informaiton
+(i) tracking and recognition
+
+(ii) detect and recognise directory
+
+(6) README with all this information
+
 
 ## Paper
 
