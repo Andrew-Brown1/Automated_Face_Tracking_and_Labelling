@@ -36,4 +36,11 @@ If you find this repository useful, please consider citing:
     year={2021},
     booktitle={Multimedia Information Processing and Retrieval (MIPR)}
 }
+
+@InProceedings{Brown20,
+  author       = "Andrew Brown and Weidi Xie and Vicky Kalogeiton and Andrew Zisserman ",
+  title        = "Smooth-AP: Smoothing the Path Towards Large-Scale Image Retrieval",
+  booktitle    = "European Conference on Computer Vision (ECCV), 2020.",
+  year         = "2020",
+}
 ```
