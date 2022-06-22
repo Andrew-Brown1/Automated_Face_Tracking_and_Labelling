@@ -30,11 +30,11 @@ class VideoFaceTracker:
                  face_conf_thresh=0.75,
                  recog_batch_size=50,
                  recog_weights=''):
-        
+               
         utils.auto_init_args(self)
-        
-        self.OG_temp_dir = copy.deepcopy(args.temp_dir)
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+
+        self.OG_temp_dir = copy.deepcopy(self.temp_dir)
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu)
         
         print("Using GPUs: ", os.environ['CUDA_VISIBLE_DEVICES'])
 
@@ -46,14 +46,14 @@ class VideoFaceTracker:
         #  load the detection model
         # ================================================================================================
         self.net = models.RetinaFace()
-        self.net = models.retina_face_load_model(net, '/work/abrown/Face_Detectors/Pytorch_Retinaface/weights/mobilenet0.25_Final.pth', device)
+        self.net = models.retina_face_load_model(self.net, '/work/abrown/Face_Detectors/Pytorch_Retinaface/weights/mobilenet0.25_Final.pth', device)
         self.net.eval()
         self.net = self.net.to(device)
         print('Finished loading detection model!')    
         # ================================================================================================
         #  load the ID discriminator model
         # ================================================================================================
-        self.model = self.models.ID_discriminator_model_loader(self.recog_weights, hack=False)
+        self.model = models.ID_discriminator_model_loader(self.recog_weights, hack=False)
         self.model.eval()
         self.model.to(device)
         print('Finished loading recognition model!')
@@ -62,7 +62,115 @@ class VideoFaceTracker:
         # read the video files
         # ================================================================================================
 
-        self.file_paths = utils.getListOfFiles(args.path_to_vids)
+        self.file_paths = utils.getListOfFiles(self.path_to_vids)
+        
+        self.timer = utils.Timer()
+    
+    
+    def run(self):
+        """
+        track the faces in the videos in self.file_paths 
+        """
+        with torch.no_grad():
+            for ind, full_episode in enumerate(self.file_paths):
+                print('video ' + str(ind) + ' of ' + str(len(self.file_paths)))
+                full_episode =  '/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/data/DFD/tyjpjpglgx.mp4'
+
+                # ----------------------------------------------------------
+                # create local paths and variables for this video
+                # ----------------------------------------------------------
+                
+                episode = full_episode.split('/')[-1]
+
+                save_path = os.path.join(self.save_path,episode[:-4])
+                if not os.path.isdir(save_path):
+                    os.mkdir(save_path)
+                
+                temp_file_name = ''.join(full_episode[(len(self.path_to_vids)+1):-(len(episode))].split('/'))+episode
+
+                self.temp_dir = os.path.join(self.OG_temp_dir,episode[:-4])
+                if not os.path.isdir(self.temp_dir):
+                    os.mkdir(self.temp_dir)
+                    
+                # make the full save path if it doesn't exist
+                if not os.path.isdir(save_path):
+                    save_folder = Path(save_path)
+                    save_folder.mkdir(exist_ok=True, parents=True)
+
+                # do not continue if:
+                proceed = True
+                if os.path.isfile(os.path.join(save_path, episode + '.pickle')):
+                    # this video has already been processed
+                    proceed = False
+
+                if proceed:
+                    
+                    # ----------------------------------------------------------
+                    # (1) extract frames for this video to a temporary directory
+                    # ----------------------------------------------------------
+                    self.timer._start('frame extraction',self.verbose)
+
+                    # (a) find the resolution and fps of the videos
+
+                    vid = cv2.VideoCapture(full_episode)
+                    vid_resolution = [int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))]
+                    vid_fps = vid.get(cv2.CAP_PROP_FPS)
+                    if self.verbose:
+                        start1 = time.time()
+                    start1 = time.time()
+
+                    # (b) extract the frames (if not done already)
+                    
+                    if not os.path.isdir(os.path.join(self.temp_dir, temp_file_name)):
+                        os.mkdir(os.path.join(self.temp_dir, temp_file_name))
+
+                        Command = "ffmpeg -i " + full_episode + " -threads 1 -deinterlace -q:v 1 -s "+str(vid_resolution[0])+":"+str(vid_resolution[1])+" -vf fps="+str(vid_fps) + " " + self.temp_dir + "/" + temp_file_name + "/%06d.jpg"
+
+                        os.system(Command)
+                    
+                    self.timer._log_end('frame extraction', self.verbose)
+                    
+                    # ----------------------------------------------------------
+                    # (2) detect the faces in the frames
+                    # ----------------------------------------------------------
+                    self.timer._start('detecting faces',self.verbose)
+                    
+                    detection_dict = models.detect_faces(self, temp_file_name, self.net, device)
+                            
+                    self.timer._log_end('detecting faces', self.verbose)
+                    
+                    # ----------------------------------------------------------
+                    # (3) extract ID discriminating features
+                    # ----------------------------------------------------------
+                    self.timer._start('extracting features',self.verbose)
+
+                    TrackInfo = models.Extract_Features(self, temp_file_name, detection_dict, self.model)
+                    
+                    self.timer._log_end('extracting features', self.verbose)
+                    
+                    # ----------------------------------------------------------
+                    # (4) create face-tracks using the detections and features
+                    # face-tracking is done with a simple tracker that combines
+                    # detection IOU and feature similarity
+                    # ----------------------------------------------------------
+                    self.timer._start('tracking faces',self.verbose)
+
+                    Tracker.Track(TrackInfo, os.path.join(save_path, episode))
+                    
+                    self.timer._log_end('tracking faces', self.verbose)
+                    
+                    # ----------------------------------------------------------
+                    # (5) optionally, create a video with the face-trakcs shown 
+                    # ----------------------------------------------------------
+                                    
+                    if self.make_video:
+                        utils.MakeVideo(episode, self.temp_dir, save_path, full_episode, fps=vid_fps)
+                    
+                    # ----------------------------------------------------------
+                    # (6) delete temporary written files
+                    # ----------------------------------------------------------
+                    os.system('rm -R '+ self.temp_dir)
+                    
 
 
 

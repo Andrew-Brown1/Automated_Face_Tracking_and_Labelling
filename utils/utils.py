@@ -38,6 +38,10 @@ def auto_init_args(obj, tgt=None, can_overwrite=False):
     else:
         tgt_attr = obj
         
+    for name in paramnames:
+        # print("\t autosetting %s -> %s" % (name, str(params[name])))
+        setattr(tgt_attr, name, params[name])
+        
         
 class Timer:
     def __init__(self):
