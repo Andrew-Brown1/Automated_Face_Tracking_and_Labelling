@@ -59,6 +59,43 @@ class detection_dataset_mobilenet(Dataset):
 
         return img
 
+class detection_downloaded_image_dir(Dataset):
+    def __init__(self, root_image_dir):
+
+        self.root_image_dir = root_image_dir
+        self.test_dataset = []
+        self.GetImages()
+        self.scale = None
+
+    def __len__(self):
+        return len(self.test_dataset)
+
+    def __getitem__(self, index):
+
+        image_path = self.test_dataset[index]
+        img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        img = np.float32(img_raw)
+        self.scale = torch.Tensor([img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
+        self.im_height, self.im_width, _ = img.shape
+        
+        img -= (104, 117, 123)
+        img = img.transpose(2, 0, 1)
+        img = torch.from_numpy(img)
+
+        return img
+
+    def GetImages(self):
+
+        dataset = []
+        images = [f for f in os.listdir(self.root_image_dir) if 'clean' in f]
+        for ind, image in enumerate(images):
+
+            if image[-3:] == 'jpg' or image[-3:] == 'png':
+
+                dataset.append(os.path.join(self.root_image_dir, image))
+
+        self.test_dataset = dataset
+        
 
 class Extract_Dataset(Dataset):
 

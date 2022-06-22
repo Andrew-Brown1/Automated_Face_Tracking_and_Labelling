@@ -3,31 +3,41 @@ import os
 from torch.utils.data import DataLoader
 from torch.utils.data import SequentialSampler
 import torch
+import cv2
 import numpy as np 
-from .model_datasets import detection_dataset_mobilenet
+from .model_datasets import detection_dataset_mobilenet, detection_downloaded_image_dir
 from .retinaface import *
-
+from tqdm import tqdm
 import pdb
 
-def detect_faces(args, episode, net, device):
+def detect_faces(args, episode, net, device, irregular_images=False):
     
     cfg = cfg_mnet
-    dataset = detection_dataset_mobilenet(os.path.join(args.temp_dir, episode), args.down_res)
 
-    scale = dataset.scale.to(device)
-    args.nms_threshold = 0.4
 
+    if not irregular_images:
+        dataset = detection_dataset_mobilenet(os.path.join(args.temp_dir, episode), args.down_res)
+    else:
+        dataset = detection_downloaded_image_dir(os.path.join(args.temp_dir, episode))
+
+    
     dataloader = DataLoader(dataset, batch_size=args.det_batch_size, shuffle=False,
                             num_workers=int(args.num_workers), drop_last=False,
                             sampler=SequentialSampler(dataset))
+    
+
+    args.nms_threshold = 0.4
 
     detection_dict = {}
 
     all_dets = []
 
     for i, batch in enumerate(dataloader):
+        
 
+        scale = dataset.scale.to(device)
         img = batch.to(device)
+
 
         loc, conf, landms = net(img)
 
@@ -64,6 +74,15 @@ def detect_faces(args, episode, net, device):
             dets = dets[keep, :]
 
             all_dets.append(dets)
+            
+            
+        # image_path = dataset.test_dataset[0]
+        # img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        # for det in dets:
+        #     rect = [int(float(det[0])),int(float(det[1])),int(float(det[2])),int(float(det[3]))]
+        #     img_raw = cv2.rectangle(img_raw, (int(rect[0]), int(rect[1])), (int(rect[2]), int(rect[3])), (0,0,255), 7)
+        # cv2.imwrite('temp.jpg', img_raw)
+
 
     # assemble the same dictionary for output
 
