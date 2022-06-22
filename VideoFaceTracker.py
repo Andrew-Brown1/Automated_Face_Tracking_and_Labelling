@@ -9,7 +9,7 @@ from pathlib import Path
 import pickle
 import copy
 
-import Tracker
+import ImageProcessor
 import models
 import utils
 device = torch.device("cuda")
@@ -74,7 +74,6 @@ class VideoFaceTracker:
         with torch.no_grad():
             for ind, full_episode in enumerate(self.file_paths):
                 print('video ' + str(ind) + ' of ' + str(len(self.file_paths)))
-                full_episode =  '/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/data/DFD/tyjpjpglgx.mp4'
 
                 # ----------------------------------------------------------
                 # create local paths and variables for this video
@@ -155,7 +154,7 @@ class VideoFaceTracker:
                     # ----------------------------------------------------------
                     self.timer._start('tracking faces',self.verbose)
 
-                    Tracker.Track(TrackInfo, os.path.join(save_path, episode))
+                    ImageProcessor.Track(TrackInfo, os.path.join(save_path, episode))
                     
                     self.timer._log_end('tracking faces', self.verbose)
                     
@@ -205,7 +204,7 @@ if __name__ == '__main__':
                                     temp_dir = args.temp_dir,
                                     make_video=args.make_video,
                                     down_res=args.down_res,
-                                    verbose=args.gpu,
+                                    verbose=args.verbose,
                                     gpu=args.gpu,
                                     num_workers=args.num_workers,
                                     det_batch_size=args.det_batch_size,
