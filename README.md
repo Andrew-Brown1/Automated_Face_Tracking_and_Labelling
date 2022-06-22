@@ -5,13 +5,17 @@ Code for the paper "Automated Video Labelling: Identifying Faces by Corroborativ
 
 a) use Smooth-AP (and cite it at the bottom)
 
-2) get the code to go from the tracking outputs to the inputs that the annotator takes (in some BBC ICMR folder somewhere)
+2) write the ImageFaceRecogniser - this is an object that will go from noisey image dir to aggregated face features (with returning all of the metadata and potentially not doing the cleaning if not needed, and can batch if needed - because with web images the batch size is 1
 
-3) code to go from directory of messy person images, to "clean" face vectors. 
+- main work here is on the famous not-famous code which needs a lot of cleaning and re-writing 
 
-(a) make it a feature that the repo can also just detect faces and extract feats from directory of images without the "cleaning"
+3) Full pipeline code 
 
-4) annotation code, which annotates the videos with the names from the directories, including the query expansion
+- read the outputs from both the above 2, and start writing the annotator 
+
+- the first step of the annotator is to get the inputs in the correct form
+
+- this has to have the query expansion part
 
 5) processing scripts
 
