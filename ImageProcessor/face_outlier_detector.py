@@ -2,36 +2,35 @@ import os
 import pickle
 import pdb
 from sklearn.cluster import AgglomerativeClustering
-from data_utils import AverageVectorfunc
 import numpy as np
 from tqdm import tqdm
 from os.path import join as osj
-import cv2
-import multiprocessing as mp
-import editdistance
 
-class Downloaded_Image_Processor:
-    """this class looks at the downloaded images, decides whether the person is famous or not, and if it is, cleans the images
 
-    - methods to pre-process the images, classify as famous or not and also to output a single aggregated feature vector
-    for that identity
+class FaceOutlierDetection:
+    """this object has the functionality of determining the most common 'class' in a set of features using 
+    clustering
     """
 
-    def __init__(self, TrackInfo, famous_threshold):
+    def __init__(self, famous_threshold=30):
         
-        self.track_info = TrackInfo
         self.famous_threshold = famous_threshold
         self.clusterer = AgglomerativeClustering(affinity='cosine', linkage='single', distance_threshold=0.32,
                                              n_clusters=None)
         
         # (a) cluster the first 100 to see whether famous or not 
+        
+        
 
             # - this requires getting the ranking of the images into the trackinfo object
         # (b) cluster all the features, then output whether each of them belongs to the main cluster or not 
 
-    def cluster_features(self, features, famous_thresh):
-        clustering = AgglomerativeClustering(affinity='cosine', linkage='single', distance_threshold=0.32,
-                                             n_clusters=None).fit(features)
+    def run(self, trackinfo):
+        # clustering = AgglomerativeClustering(affinity='cosine', linkage='single', distance_threshold=0.32,
+                                            #  n_clusters=None).fit(features)
+        pdb.set_trace()                                
+        # (1) cluster the first 100
+        labels = self.cluster_(track)    
         labels = clustering.labels_
         unique, counts = np.unique(labels, return_counts=True)
 

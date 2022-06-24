@@ -57,7 +57,7 @@ class detection_dataset_mobilenet(Dataset):
         # img = img.to(device)
         # scale = scale.to(device)
 
-        return img
+        return img, self.scale, self.im_height, self.im_width
 
 class detection_downloaded_image_dir(Dataset):
     def __init__(self, root_image_dir):
@@ -82,7 +82,7 @@ class detection_downloaded_image_dir(Dataset):
         img = img.transpose(2, 0, 1)
         img = torch.from_numpy(img)
 
-        return img
+        return img, self.scale, self.im_height, self.im_width
 
     def GetImages(self):
 

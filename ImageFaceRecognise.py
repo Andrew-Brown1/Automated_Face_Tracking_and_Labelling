@@ -14,6 +14,7 @@ import torch
 import models
 import argparse
 import utils
+import ImageProcessor
 
 device = torch.device("cuda")
 os.system('module load apps/ffmpeg-4.2.1')
@@ -86,6 +87,9 @@ class ImageFaceRecognise:
         #  prepare the "cleaning" face processor (outlier removal stage)
         # ================================================================================================
         
+        self.OutlierDetector = ImageProcessor.FaceOutlierDetection()
+        
+        
     def run(self):
         """
         detect and extract features from the faces in the directories in self.image_dirs        
@@ -121,15 +125,16 @@ class ImageFaceRecognise:
                     Feature_Info = models.Extract_Features(self, image_dir, detection_dict, self.model)
                     
                     self.timer._log_end('extracting features', self.verbose)
-                    
-                    pdb.set_trace()
-                    
+                                        
                     # ----------------------------------------------------------
                     # (3) optionally - flag outlier faces. This process finds the 
                     # most commonly depicted face in the directory, and ignores
                     # the outlier faces from different identities when 
                     # computing an aggregated representation
                     # ----------------------------------------------------------
+                    
+                    self.OutlierDetector.run(Feature_Info)
+                    
                     
                     # this is in ImageProcessor.face_outlier_detection
                     

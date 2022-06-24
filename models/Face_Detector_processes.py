@@ -34,17 +34,21 @@ def detect_faces(args, episode, net, device, irregular_images=False):
 
     for i, batch in enumerate(dataloader):
         
+        img, scale, im_height, im_width = batch 
+        img = img.to(device)
 
-        scale = dataset.scale.to(device)
-        img = batch.to(device)
+        scale = scale[0].to(device)
+        im_height = im_height[0].item()
+        im_width = im_width[0].item()
+ 
 
 
         loc, conf, landms = net(img)
 
-        priorbox = PriorBox(cfg, image_size=(dataset.im_height, dataset.im_width))
+        priorbox = PriorBox(cfg, image_size=(im_height, im_width))
         priors = priorbox.forward()
         priors = priors.to(device)
-        priors = torch.unsqueeze(priors, 0).repeat(batch.shape[0], 1, 1)
+        priors = torch.unsqueeze(priors, 0).repeat(img.shape[0], 1, 1)
 
         prior_data = priors.data
         if len(loc.data.shape) > 3:
