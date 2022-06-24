@@ -82,6 +82,10 @@ class ImageFaceRecognise:
         if self.irregular_images:
             self.det_batch_size = 1
         
+        # ================================================================================================
+        #  prepare the "cleaning" face processor (outlier removal stage)
+        # ================================================================================================
+        
     def run(self):
         """
         detect and extract features from the faces in the directories in self.image_dirs        
@@ -128,6 +132,11 @@ class ImageFaceRecognise:
                     # ----------------------------------------------------------
                     
                     # this is in ImageProcessor.face_outlier_detection
+                    
+                    # (1) cluster the feats
+                    # (2) check if above the famous threshold (n in first 100)
+                    # (3) cluster all of the features
+                    # (4) output labels
                     
                     # this code needs some quite serious cleaning to make it useable and interpretable 
                     # at the moment it is using the fact that the downloaded images have rankings. Remove this dependancy 
