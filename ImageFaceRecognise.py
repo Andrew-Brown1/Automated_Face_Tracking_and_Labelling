@@ -10,9 +10,11 @@ this also has a feature of "clean" which will do the famous / non-famous part
 
 import os
 import pdb 
+import pickle
 import torch
 import models
 import argparse
+import numpy as np
 import utils
 import ImageProcessor
 
@@ -89,7 +91,32 @@ class ImageFaceRecognise:
         
         self.OutlierDetector = ImageProcessor.FaceOutlierDetection()
         
+    def _prepare_outputs(self,outputs, dominant_class, outlier_labels):
+        """
+        prepare the outputs for the image face recognise
         
+        """
+        outputs['x'] = np.concatenate([np.array([f]) for f in outputs['x']])
+        outputs['y'] = np.concatenate([np.array([f]) for f in outputs['y']])
+        outputs['w'] = np.concatenate([np.array([f]) for f in outputs['w']])
+        outputs['h'] = np.concatenate([np.array([f]) for f in outputs['h']])
+        
+        outputs['Features'] = np.concatenate([np.expand_dims(f,0) for f in outputs['Features']], axis=0)
+        
+        # aggregated features 
+        # (a) for every computed feature (when ignoring outlier detection)
+        outputs['aggregated_feature_all'] = ImageProcessor.tracker.AverageVectorfunc(outputs['Features'])
+        #  (b) for the non-outlier features
+        features_without_outliers = np.concatenate([np.expand_dims(f,0) for ind, f in enumerate(outputs['Features'] ) if outlier_labels[ind] == 1 ], axis=0)
+
+        outputs['aggregated_feature_without_outliers'] = ImageProcessor.tracker.AverageVectorfunc(features_without_outliers)
+        
+        outputs['famous'] = dominant_class
+        outputs['outlier_labels'] = outlier_labels
+        
+        return outputs
+
+       
     def run(self):
         """
         detect and extract features from the faces in the directories in self.image_dirs        
@@ -133,23 +160,18 @@ class ImageFaceRecognise:
                     # computing an aggregated representation
                     # ----------------------------------------------------------
                     
-                    self.OutlierDetector.run(Feature_Info)
-                    
-                    
-                    # this is in ImageProcessor.face_outlier_detection
-                    
-                    # (1) cluster the feats
-                    # (2) check if above the famous threshold (n in first 100)
-                    # (3) cluster all of the features
-                    # (4) output labels
-                    
-                    # this code needs some quite serious cleaning to make it useable and interpretable 
-                    # at the moment it is using the fact that the downloaded images have rankings. Remove this dependancy 
-                    # so that it is just doing the clustering 
+                    dominant_class, outlier_labels = self.OutlierDetector.run(Feature_Info)
                     
                     # ----------------------------------------------------------
                     # (4) prepare the outputs
                     # ----------------------------------------------------------
+                    
+                    # x, y, w, h, features, image_names, labels, bool, aggregated_features (both)
+                    
+                    outputs = self._prepare_outputs(Feature_Info, dominant_class, outlier_labels)
+                                        
+                    with open(os.path.join(self.save_path, image_dir + '.pk'),'wb') as f:
+                        pickle.dump(outputs, f)
                     
                     
                     
