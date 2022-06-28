@@ -97,8 +97,9 @@ class VideoFaceTracker:
                     save_folder.mkdir(exist_ok=True, parents=True)
 
                 # do not continue if:
+
                 proceed = True
-                if os.path.isfile(os.path.join(save_path, episode + '.pickle')):
+                if os.path.isfile(os.path.join(save_path, episode[:-4] + '.pickle')):
                     # this video has already been processed
                     proceed = False
 

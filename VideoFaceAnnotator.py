@@ -79,10 +79,11 @@ class VideoFaceAnnotator:
                                     recog_weights=recog_weights,
                                     verbose=verbose,
                                     irregular_images=irregular_images,
-                                    det_batch_size=det_batch_size)
+                                    det_batch_size=det_batch_size,
+                                    loaded_face_detector=self.videofacetracker.net,
+                                    loaded_face_recogniser=self.videofacetracker.model)
         
         
-        pdb.set_trace()
         # change the argument names to make more sense for the different stages 
         
         # sort out the fact that the face detector and face recogniser models are loaded twice at this point - need to pass them as an argument to the imagefacerecogniser I think
@@ -99,18 +100,33 @@ class VideoFaceAnnotator:
         
         # (7) make the annotation video
             
-            
+    def run(self):
+        
+        # ================================================================================================
+        #  run the video face tracker
+        # ================================================================================================
+        self.videofacetracker.run()
+        
+        # ================================================================================================
+        #  run the image face recogniser 
+        # ================================================================================================
+        self.imagefacerecogniser.run()
+        
+        
+        pdb.set_trace()
+        
+        
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     
     # paths
-    parser.add_argument('--save_path', type=str,default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/out', help='path to where all outputs are saved')
-    parser.add_argument('--path_to_vids', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/data/DFD', help='path to directory containing videos to process (mp4)', type=str)
+    parser.add_argument('--save_path', type=str,default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/git_temp_data/out', help='path to where all outputs are saved')
+    parser.add_argument('--path_to_vids', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/git_temp_data/videos', help='path to directory containing videos to process (mp4)', type=str)
     parser.add_argument('--temp_dir', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/temp', help='path to where temporary directory can be created and then deleted at end of process',
                         type=str)
-    parser.add_argument('--path_to_image_dirs', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/temp_image_dirs', help='path to parent directory of image-directories', type=str)
+    parser.add_argument('--path_to_image_dirs', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/git_temp_data/people', help='path to parent directory of image-directories', type=str)
     # options
     parser.add_argument('--irregular_images', default=True, help='the images in the directories are all different sizes. If set to true, the detector will not any image and use a batch size of 1. If False, the detector will batch the images and resize them according to the down_res argument', type=bool)
     parser.add_argument('--make_video', default=False, help='output the video of face tracks ', type=bool)
@@ -145,4 +161,4 @@ if __name__ == '__main__':
                                     recog_weights=args.recog_weights)
 
     
-    
+    video_face_annotator.run()
