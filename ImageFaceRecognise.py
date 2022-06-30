@@ -121,6 +121,7 @@ class ImageFaceRecognise:
         """
         detect and extract features from the faces in the directories in self.image_dirs        
         """
+
         with torch.no_grad():
             for ind, image_dir in enumerate(self.image_dirs):
                 print('image dir ' + str(ind) + ' of ' + str(len(self.image_dirs)))
@@ -169,12 +170,10 @@ class ImageFaceRecognise:
                     # x, y, w, h, features, image_names, labels, bool, aggregated_features (both)
                     
                     outputs = self._prepare_outputs(Feature_Info, dominant_class, outlier_labels)
-                                        
+                                                            
                     with open(os.path.join(self.save_path, image_dir + '.pk'),'wb') as f:
                         pickle.dump(outputs, f)
-                    
-                    
-                    
+
 
 if __name__ == '__main__':
     
