@@ -23,8 +23,9 @@ this is the pipeline to do everything - go from a directory of images to "cleane
 """
 from VideoFaceTracker import VideoFaceTracker
 from ImageFaceRecognise import ImageFaceRecognise
-import argparse 
 
+import argparse 
+import ImageProcessor
 import utils
 import pdb
 
@@ -84,15 +85,16 @@ class VideoFaceAnnotator:
                                     loaded_face_recogniser=self.videofacetracker.model)
         
         
+        # ================================================================================================
+        #  load video face track annotator
+        # ================================================================================================
+        
+        self.track_annotator = ImageProcessor.TrackAnnotator(save_path=save_path,
+                                                              path_to_vids=path_to_vids,
+                                                              path_to_input=path_to_input)
+        
+        
         # change the argument names to make more sense for the different stages 
-        
-        # sort out the fact that the face detector and face recogniser models are loaded twice at this point - need to pass them as an argument to the imagefacerecogniser I think
-        
-        # (2) load all of the objects 
-    
-        # (3) track faces, 
-        
-        # (4) extract image feats
         
         # (5) get it in the correct format or whatever
         
@@ -111,6 +113,11 @@ class VideoFaceAnnotator:
         #  run the image face recogniser 
         # ================================================================================================
         self.imagefacerecogniser.run()
+        
+        # ================================================================================================
+        #  annotate the tracks
+        # ================================================================================================
+        self.track_annotator.run(face_dictionary)
         
         
         pdb.set_trace()
