@@ -32,7 +32,7 @@ class VideoFaceTracker:
                  recog_weights=''):
                
         utils.auto_init_args(self)
-
+        
         self.OG_temp_dir = copy.deepcopy(self.temp_dir)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu)
         
@@ -71,6 +71,7 @@ class VideoFaceTracker:
         """
         track the faces in the videos in self.file_paths 
         """
+
         with torch.no_grad():
             for ind, full_episode in enumerate(self.file_paths):
                 print('video ' + str(ind) + ' of ' + str(len(self.file_paths)))

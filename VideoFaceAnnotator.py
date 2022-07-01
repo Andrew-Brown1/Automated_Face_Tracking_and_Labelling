@@ -52,7 +52,7 @@ class VideoFaceAnnotator:
         # ================================================================================================
         #  load the video face tracker
         # ================================================================================================
-        
+
         self.videofacetracker = VideoFaceTracker(save_path=save_path,
                                     path_to_vids=path_to_vids,
                                     temp_dir = temp_dir,
@@ -117,7 +117,7 @@ class VideoFaceAnnotator:
         # ================================================================================================
         #  annotate the tracks
         # ================================================================================================
-        self.track_annotator.run(face_dictionary)
+        self.track_annotator.run()
         
         
         pdb.set_trace()
