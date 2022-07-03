@@ -3,15 +3,19 @@ import pdb
 import pickle
 import numpy as np
 import utils
+import ImageProcessor
+
 class TrackAnnotator:
     
     def __init__(self, save_path, 
                  path_to_vids,
                  path_to_input,
+                 temp_dir,
                  face_verification_threshold=0.7, 
                  query_expansion_threshold=0.7,
                  only_use_non_outlier_faces=True,
-                 min_track_duration=5):
+                 min_track_duration=5,
+                 make_annotation_video=False):
         
         utils.auto_init_args(self)
         
@@ -53,9 +57,8 @@ class TrackAnnotator:
     def _UTILS_read_processed_videos(self):
         # read the videos that have been processed
         
-        self.videos = [f[:-4] for f in os.listdir(self.path_to_vids) if os.path.isdir(os.path.join(self.save_path,f[:-4]))]
-        
-    
+        self.videos = [f for f in os.listdir(self.path_to_vids) if os.path.isdir(os.path.join(self.save_path,f[:-4]))]
+          
     def _UTILS_read_detection_meta_data(self, file_path):
         # read the average detection size and duration for each track
         track_meta_data = []
@@ -111,14 +114,44 @@ class TrackAnnotator:
         
         return track_features, tracks_to_use
         
-    def _ANNOTATE_verify(self, video_track_features):
+    def _UTILS_expand_face_dict(self, annotations, video_track_features):
+        # create a new face dictionary for a specific video, where the features are
+        # aggregated with the features from annotations already made. This is a form
+        # of "query expansion" which will move the features in the dictionary closer
+        # to the domain of the videos being annotated
+        
+        # ------------------------------------------------
+        # create a feature dictionary with features of the annotated tracks for each name 
+        # (same size as self.face_dictionary_feats)
+        # ------------------------------------------------
+        expanded_face_dict_feats = np.zeros_like(self.face_dictionary_feats)
+        annotation_locations = np.where( (np.expand_dims(annotations,-1) == np.expand_dims(self.face_dictionary_names,0).repeat(annotations.shape[0],0)).astype(int)==1)
+        for ID_ind in range(self.face_dictionary_feats.shape[0]):
+            # get the annotated features for this identity in the face dict
+            if np.sum(annotation_locations[1] == ID_ind) > 0:
+                expanded_face_dict_feats[ID_ind] = ImageProcessor.tracker.AverageVectorfunc(video_track_features[annotation_locations[0][np.where(annotation_locations[1]==ID_ind)[0]]])
+            else:
+                expanded_face_dict_feats[ID_ind] = self.face_dictionary_feats[ID_ind]
+
+        # ------------------------------------------------
+        # average pool this with the original face feature dictionary + L2 normalise
+        # ------------------------------------------------
+        expanded_face_dict_feats = ((self.face_dictionary_feats + expanded_face_dict_feats) / np.expand_dims(np.linalg.norm((self.face_dictionary_feats + expanded_face_dict_feats),axis=1),1))
+        
+        return expanded_face_dict_feats
+        
+    def _ANNOTATE_tracks(self, video_track_features, face_dict_features=None):
         # annotate the video track feautures using the face bank features
         
         # ------------------------------------------------
         # compute similarity between track features and feature bank
         # ------------------------------------------------
-        similarities = np.dot(self.face_dictionary_feats, np.transpose(video_track_features))
+        if face_dict_features is None:
+            # then use the original computed face dictionary features
+            face_dict_features = self.face_dictionary_feats
         
+        similarities = np.dot(face_dict_features, np.transpose(video_track_features))
+
         # ------------------------------------------------
         # find any verification matches
         # ------------------------------------------------
@@ -127,7 +160,7 @@ class TrackAnnotator:
         
         # ------------------------------------------------
         # fill the annotation data
-        # ------------------------------------------------
+        # ------------------------------------------------        
         return np.char.multiply(self.face_dictionary_names[feat_bank_matches],threshold_match)
         
     def run(self):
@@ -151,22 +184,27 @@ class TrackAnnotator:
             # ------------------------------------------------
             # read the video data into some useuful form 
             # ------------------------------------------------
-            video_track_features, tracks_to_use = self._UTILS_read_video_tracks(video)
+            video_track_features, tracks_to_use = self._UTILS_read_video_tracks(video[:-4])
              
             # ------------------------------------------------
             # annotate using face
             # ------------------------------------------------
-            annotations = self._ANNOTATE_verify(video_track_features)
-        
+            annotations = self._ANNOTATE_tracks(video_track_features)
+
             # ------------------------------------------------
             # query expansion
             # ------------------------------------------------
-            # (1) update the query bank
+            # (1) update the face dictionary with the features from the annotaion face-tracks
+            query_expanded_face_dict = self._UTILS_expand_face_dict(annotations, video_track_features) 
             # (2) re-annotate
-            pdb.set_trace()
+            annotations = self._ANNOTATE_tracks(video_track_features, face_dict_features=query_expanded_face_dict)
+           
+
             # ------------------------------------------------
             # optionally make an annotation video
             # ------------------------------------------------
             
+            if self.make_annotation_video:
+                utils.MakeVideo(video, os.path.join(self.temp_dir, video[:-4]), os.path.join(self.save_path,video[:-4]), os.path.join(self.path_to_vids,video), annotations=annotations)
             
             

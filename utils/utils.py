@@ -254,3 +254,19 @@ def compute_array(Tracks, vid, size):
     return out
 
 
+def extract_frames_from_video(full_episode, temp_dir, temp_file_name):
+
+    
+    # (a) find the resolution and fps of the videos
+    vid = cv2.VideoCapture(full_episode)
+    vid_resolution = [int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))]
+    vid_fps = vid.get(cv2.CAP_PROP_FPS)
+
+    # (b) extract the frames (if not done already)    
+    if not os.path.isdir(os.path.join(temp_dir, temp_file_name)):
+        os.mkdir(os.path.join(temp_dir, temp_file_name))
+
+        Command = "ffmpeg -i " + full_episode + " -threads 1 -deinterlace -q:v 1 -s "+str(vid_resolution[0])+":"+str(vid_resolution[1])+" -vf fps="+str(vid_fps) + " " + temp_dir + "/" + temp_file_name + "/%06d.jpg"
+        os.system(Command)
+
+    return vid_fps
