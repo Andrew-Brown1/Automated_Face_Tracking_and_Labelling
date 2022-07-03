@@ -45,7 +45,8 @@ class VideoFaceAnnotator:
                  face_conf_thresh=0.75,
                  recog_batch_size=50,
                  irregular_images=True,
-                 recog_weights=''):
+                 recog_weights='',
+                 make_annotation_video=True):
 
         utils.auto_init_args(self)
 
@@ -91,16 +92,10 @@ class VideoFaceAnnotator:
         
         self.track_annotator = ImageProcessor.TrackAnnotator(save_path=save_path,
                                                               path_to_vids=path_to_vids,
-                                                              path_to_input=path_to_input)
+                                                              path_to_input=path_to_input,
+                                                              temp_dir = temp_dir,
+                                                              make_annotation_video=make_annotation_video)
         
-        
-        # change the argument names to make more sense for the different stages 
-        
-        # (5) get it in the correct format or whatever
-        
-        # (6) do the different annotation stages
-        
-        # (7) make the annotation video
             
     def run(self):
         
@@ -137,6 +132,7 @@ if __name__ == '__main__':
     # options
     parser.add_argument('--irregular_images', default=True, help='the images in the directories are all different sizes. If set to true, the detector will not any image and use a batch size of 1. If False, the detector will batch the images and resize them according to the down_res argument', type=bool)
     parser.add_argument('--make_video', default=False, help='output the video of face tracks ', type=bool)
+    parser.add_argument('--make_annotation_video', default=False, help='output the video of face tracks annotations ', type=bool)
     parser.add_argument('--down_res', default=0.5, help='lower the resolution of the frames for the detection process to speed everything up', type=float)
     parser.add_argument('--verbose', default=True, help='print timings throughout processing', type=bool)
     # system
@@ -165,7 +161,8 @@ if __name__ == '__main__':
                                     irregular_images=args.irregular_images,
                                     face_conf_thresh=args.face_conf_thresh,
                                     recog_batch_size=args.recog_batch_size,
-                                    recog_weights=args.recog_weights)
+                                    recog_weights=args.recog_weights,
+                                    make_annotation_video=args.make_annotation_video)
 
     
     video_face_annotator.run()

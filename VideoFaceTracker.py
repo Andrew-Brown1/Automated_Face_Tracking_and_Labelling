@@ -86,7 +86,7 @@ class VideoFaceTracker:
                 if not os.path.isdir(save_path):
                     os.mkdir(save_path)
                 
-                temp_file_name = ''.join(full_episode[(len(self.path_to_vids)+1):-(len(episode))].split('/'))+episode
+                temp_file_name = episode
 
                 self.temp_dir = os.path.join(self.OG_temp_dir,episode[:-4])
                 if not os.path.isdir(self.temp_dir):
@@ -110,24 +110,9 @@ class VideoFaceTracker:
                     # (1) extract frames for this video to a temporary directory
                     # ----------------------------------------------------------
                     self.timer._start('frame extraction',self.verbose)
-
-                    # (a) find the resolution and fps of the videos
-
-                    vid = cv2.VideoCapture(full_episode)
-                    vid_resolution = [int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))]
-                    vid_fps = vid.get(cv2.CAP_PROP_FPS)
-                    if self.verbose:
-                        start1 = time.time()
-                    start1 = time.time()
-
-                    # (b) extract the frames (if not done already)
                     
-                    if not os.path.isdir(os.path.join(self.temp_dir, temp_file_name)):
-                        os.mkdir(os.path.join(self.temp_dir, temp_file_name))
-
-                        Command = "ffmpeg -i " + full_episode + " -threads 1 -deinterlace -q:v 1 -s "+str(vid_resolution[0])+":"+str(vid_resolution[1])+" -vf fps="+str(vid_fps) + " " + self.temp_dir + "/" + temp_file_name + "/%06d.jpg"
-
-                        os.system(Command)
+                    # extract the frames using ffmpeg
+                    utils.extract_frames_from_video(full_episode, self.temp_dir, temp_file_name)
                     
                     self.timer._log_end('frame extraction', self.verbose)
                     

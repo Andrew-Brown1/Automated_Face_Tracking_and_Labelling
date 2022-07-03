@@ -3,27 +3,28 @@ Code for the paper "Automated Video Labelling: Identifying Faces by Corroborativ
 
 1) finish off the tracking code 
 
-a) use Smooth-AP (and cite it at the bottom)
+a) use Smooth-AP (and cite it at the bottom) (just need to verify that it works)
 
-2) write the ImageFaceRecogniser - this is an object that will go from noisey image dir to aggregated face features (with returning all of the metadata and potentially not doing the cleaning if not needed, and can batch if needed - because with web images the batch size is 1
+2) Annotation Code
 
-- main work here is on the famous not-famous code which needs a lot of cleaning and re-writing 
+(a) make the video - this involves actually re-extracting the frames which is a bit dumb
 
-3) Full pipeline code 
+(b) debug - something isn't quite right with the query expansion - check this out (CHANGE THE DOWN-RES)
 
-- read the outputs from both the above 2, and start writing the annotator 
+c) make video 
 
-- the first step of the annotator is to get the inputs in the correct form
+3) find a good demo video and show it in the README
 
-- this has to have the query expansion part
 
-5) processing scripts
+4) processing scripts AND readme
 
-(a) full pipeline of everything from directories of images and videos 
+(i) links to download images, videos, weights
+
+(a) full pipeline for everything
 
 (b) individual pipelines for:
 
-(i) tracking and recognition
+(i) tracking and recognition on videos
 
 (ii) detect and recognise directory
 
@@ -32,15 +33,19 @@ a) use Smooth-AP (and cite it at the bottom)
 
 ## Paper
 
-If you find this repository useful, please consider citing:
+If you find this repository useful, please cite:
 
 ```
+(a) the video face tracking and annotation method:
+
 @InProceedings{Brown21,
     title={Automated Video Labelling: Identifying Faces by Corroborative Evidence},
     author={Andrew Brown and Ernesto Coto and Andrew Zisserman},
     year={2021},
     booktitle={Multimedia Information Processing and Retrieval (MIPR)}
 }
+
+(b) the deep representation used:
 
 @InProceedings{Brown20,
   author       = "Andrew Brown and Weidi Xie and Vicky Kalogeiton and Andrew Zisserman ",

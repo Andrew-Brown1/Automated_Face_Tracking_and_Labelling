@@ -3,6 +3,7 @@ import cv2
 import random
 import pdb
 from tqdm import tqdm
+from utils import extract_frames_from_video
 
 def expandrect(rect, expand_fac, shape):
 
@@ -63,8 +64,14 @@ def MakeSquare(det,img, extension=0.65, ex2=0.4):
 
 
 
-def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps):
+def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps=None, annotations=None):
 
+
+    # check that the frames are extracted - if not, then extract 
+
+    if not os.path.isdir(os.path.join(temp_directory,Video)):
+        fps = extract_frames_from_video(original_video_path,temp_directory, Video )
+    
 
     TrackColourDictionary = {}
     with open(os.path.join(ResultsDirectory, Video[:-4]+'.txt')) as f:
@@ -73,6 +80,7 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps)
     FileLines = [x.strip() for x in FileLines]
 
     for ind, LineEntry in enumerate(tqdm(FileLines)):
+        
         try:
 
             Entry = LineEntry.split(',')
@@ -91,12 +99,15 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps)
             
             image = cv2.rectangle(image, (int(rect[0]), int(rect[1])), (int(rect[2]), int(rect[3])), TrackColour, 7)
             image = cv2.putText(image, str(Entry[1]), (int(rect[0]) + 30, int(rect[1]) + 50), 0, 1, (0, 255, 0), 3)
+            if annotations is not None:
+                name = annotations[int(TrackID)]
+                image = cv2.putText(image, name, (int(rect[0]) + 30, int(rect[1]) + 80), 0, 1, (0, 255, 0), 3)
+                
             cv2.imwrite(os.path.join(temp_directory, Video, Frame), image)
+
         except:
             pdb.set_trace()
-            None
-
-
+    
     os.mkdir(os.path.join(temp_directory, 'videos'))
     
     # now make the video from the frames.
@@ -110,8 +121,10 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps)
     os.system("ffmpeg -i "+os.path.join(temp_directory, 'videos', Video) + " -i "+os.path.join(temp_directory,'videos','audio.mp3')+" -shortest " + os.path.join(temp_directory,'videos', Video[:-4]+ '.mkv'))
     
     # turn the mkv into an mp4
-    os.system('ffmpeg -i '+os.path.join(temp_directory, 'videos',Video[:-4]+ '.mkv')+' -c copy -c:a aac -strict -2 ' + os.path.join(ResultsDirectory, Video))
-    
+    if annotations is None:
+        os.system('ffmpeg -i '+os.path.join(temp_directory, 'videos',Video[:-4]+ '.mkv')+' -c copy -c:a aac -strict -2 ' + os.path.join(ResultsDirectory, Video))
+    else:
+        os.system('ffmpeg -i '+os.path.join(temp_directory, 'videos',Video[:-4]+ '.mkv')+' -c copy -c:a aac -strict -2 ' + os.path.join(ResultsDirectory, Video[:-4] + '_annotated.mp4'))
 
 
 
