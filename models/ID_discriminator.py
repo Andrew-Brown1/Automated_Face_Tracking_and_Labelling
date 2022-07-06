@@ -7,7 +7,6 @@ import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pdb
 
 def ID_discriminator_model_loader(weights_path=None, hack=False,normalise=True):
 

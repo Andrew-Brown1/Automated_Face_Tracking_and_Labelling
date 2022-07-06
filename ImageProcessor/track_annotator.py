@@ -1,5 +1,4 @@
 import os 
-import pdb
 import pickle
 import numpy as np
 import utils
@@ -27,12 +26,12 @@ class TrackAnnotator:
         # read the features
         # ------------------------------------------------
         
-        people = [f + '.pk' for f in os.listdir(self.path_to_input) if os.path.isfile(os.path.join(self.save_path,f+'.pk'))]
+        people = [f + '.pk' for f in os.listdir(os.path.join(self.path_to_input)) if os.path.isfile(os.path.join(self.save_path,'person_images_out',f+'.pk'))]
         self.face_dictionary_names = []
         self.face_dictionary_feats = []
         for person in people:
             # read the data 
-            with open(os.path.join(self.save_path,person),'rb') as f:
+            with open(os.path.join(self.save_path,'person_images_out',person),'rb') as f:
                 face_data = pickle.load(f)
 
                 if not self.only_use_non_outlier_faces:
@@ -55,9 +54,9 @@ class TrackAnnotator:
             self.face_dictionary_feats = np.concatenate(self.face_dictionary_feats, axis=0)
         
     def _UTILS_read_processed_videos(self):
-        # read the videos that have been processed
         
-        self.videos = [f for f in os.listdir(self.path_to_vids) if os.path.isdir(os.path.join(self.save_path,f[:-4]))]
+        # read the videos that have been processed
+        self.videos = [f for f in os.listdir(self.path_to_vids) if os.path.isdir(os.path.join(self.save_path,'videos_out',f[:-4]))]
           
     def _UTILS_read_detection_meta_data(self, file_path):
         # read the average detection size and duration for each track
@@ -97,14 +96,14 @@ class TrackAnnotator:
         # ------------------------------------------------
         # read the track features and data
         # ------------------------------------------------
-        if not os.path.isfile(os.path.join(self.save_path, video, video+'_TrackFeats.pk')):
+        if not os.path.isfile(os.path.join(self.save_path, 'videos_out', video, video+'_face_track_aggregated_features.pk')):
             raise Exception('cannot find track features for this video')
-        with open(os.path.join(self.save_path, video, video+'_TrackFeats.pk'),'rb') as f:
+        with open(os.path.join(self.save_path,'videos_out',  video, video+'_face_track_aggregated_features.pk'),'rb') as f:
             track_features = np.concatenate([*pickle.load(f).values()],0)
         
-        if not os.path.isfile(os.path.join(self.save_path, video, video+'.txt')):
+        if not os.path.isfile(os.path.join(self.save_path, 'videos_out', video, video+'_face_detections.txt')):
             raise Exception('cannot find track detections for this video')
-        track_meta_data = self._UTILS_read_detection_meta_data(os.path.join(self.save_path, video, video+'.txt'))
+        track_meta_data = self._UTILS_read_detection_meta_data(os.path.join(self.save_path, 'videos_out', video, video+'_face_detections.txt'))
 
         # ------------------------------------------------
         # ignore misc tracks
@@ -197,13 +196,19 @@ class TrackAnnotator:
             query_expanded_face_dict = self._UTILS_expand_face_dict(annotations, video_track_features) 
             # (2) re-annotate
             annotations = self._ANNOTATE_tracks(video_track_features, face_dict_features=query_expanded_face_dict)
+            # (3) save the annotations
 
-
+            with open(os.path.join(self.save_path,'videos_out',video[:-4], video[:-4] + '_annotations.pk'),'wb') as f:
+                pickle.dump(annotations,f)
+                
             # ------------------------------------------------
             # optionally make an annotation video
             # ------------------------------------------------
 
             if self.make_annotation_video:
-                utils.MakeVideo(video, os.path.join(self.temp_dir, video[:-4]), os.path.join(self.save_path,video[:-4]), os.path.join(self.path_to_vids,video), annotations=annotations)
+                utils.MakeVideo(video, os.path.join(self.temp_dir, video[:-4]), os.path.join(self.save_path,'videos_out', video[:-4]), os.path.join(self.path_to_vids,video), annotations=annotations)
             
+            # remove the temporary dir
+            if os.path.isdir(os.path.join(self.temp_dir, video[:-4])):
+                os.system('rm -R '+ os.path.join(self.temp_dir, video[:-4]))
             

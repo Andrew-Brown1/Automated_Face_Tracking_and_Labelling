@@ -8,7 +8,6 @@ import numpy as np
 from .model_datasets import detection_dataset_mobilenet, detection_downloaded_image_dir
 from .retinaface import *
 from tqdm import tqdm
-import pdb
 
 def detect_faces(args, episode, net, device, irregular_images=False):
     
