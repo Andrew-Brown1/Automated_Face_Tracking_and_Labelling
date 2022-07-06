@@ -36,22 +36,20 @@ class ImageFaceRecognise:
                  irregular_images=True,
                  verbose=True,
                  det_batch_size=1,
-                 recog_weights=''):
+                 recog_weights='',
+                 detector_weights=''):
         
         utils.auto_init_args(self)
 
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu)
         print("Using GPUs: ", os.environ['CUDA_VISIBLE_DEVICES'])
-        print('USING SMOOTHAP FEATURES - CHECK IF THIS IS WHAT YOU WANT')
-        # smooth-ap feats = '/scratch/shared/beegfs/abrown/AP_CVPR/AP-Project/Average_Precision_Face/weights/DSFD_Weights/weights_adam_apLoss_1e-06_b320_cpb80_an0.01_freeze_False_HNM1_HNM_choice4/2020-04-11_11-46-04/6.pth.tar SET HACK TO 1
-        # regular VGF2 feats = '/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/weights/senet50_256.pth'
-        
+
         # ================================================================================================
         #  load the detection model
         # ================================================================================================
         if self.loaded_face_detector is None:
             self.net = models.RetinaFace()
-            self.net = models.retina_face_load_model(self.net, '/work/abrown/Face_Detectors/Pytorch_Retinaface/weights/mobilenet0.25_Final.pth', device)
+            self.net = models.retina_face_load_model(self.net, self.detector_weights, device)
             self.net.eval()
             self.net = self.net.to(device)
             print('Finished loading detection model!')    
@@ -139,9 +137,9 @@ class ImageFaceRecognise:
                     # ----------------------------------------------------------
 
                     self.timer._start('detecting faces',self.verbose)
-                    
+
                     detection_dict = models.detect_faces(self, image_dir, self.net, device, irregular_images=self.irregular_images)
-                            
+
                     self.timer._log_end('detecting faces', self.verbose)
                     
                     # ----------------------------------------------------------
@@ -160,7 +158,7 @@ class ImageFaceRecognise:
                     # the outlier faces from different identities when 
                     # computing an aggregated representation
                     # ----------------------------------------------------------
-                    
+
                     dominant_class, outlier_labels = self.OutlierDetector.run(Feature_Info)
                     
                     # ----------------------------------------------------------
@@ -181,8 +179,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     # paths
-    parser.add_argument('--path_to_image_dirs', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/temp_image_dirs', help='path to parent directory of image-directories', type=str)
-    parser.add_argument('--save_path', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/out',  help='path to where all outputs are saved')
+    parser.add_argument('--path_to_image_dirs', default='../weights_and_data/face_images/', help='path to parent directory of image-directories', type=str)
+    parser.add_argument('--save_path', type=str,default='../save_dir/', help='path to where all outputs are saved')
     # options
     parser.add_argument('--irregular_images', default=True, help='the images in the directories are all different sizes. If set to true, the detector will not any image and use a batch size of 1. If False, the detector will batch the images and resize them according to the down_res argument', type=bool)
     parser.add_argument('--down_res', default=0.5, help='lower the resolution of the images for the detection process to speed everything up. This is only used if irregular_images is False', type=float)
@@ -193,9 +191,10 @@ if __name__ == '__main__':
     # detecter parameters
     parser.add_argument('--face_conf_thresh', type=float,default=0.99, help='threshold for face detections being considered') 
     parser.add_argument('--det_batch_size', default=100, help='the batchsize. This is only used if irregular_images is False. Otherwise is 1.', type=int)
+    parser.add_argument('--detector_weights', type=str,default='../weights_and_data/weights/mobilenet0.25_Final.pth', help='path to weights for detector')  
     # identity discriminator parameters
     parser.add_argument('--recog_batch_size', default=50, help='the batchsize', type=int)
-    parser.add_argument('--recog_weights', default='/scratch/shared/beegfs/abrown/Full_Tracker_Pipeline/weights/senet50_256.pth', type=str,
+    parser.add_argument('--recog_weights', default='../weights_and_data/weights/senet50_256.pth', type=str,
                         help='Trained state_dict file path to open for recognition model')
     args = parser.parse_args()
     
@@ -209,6 +208,7 @@ if __name__ == '__main__':
                                     recog_weights=args.recog_weights,
                                     verbose=args.verbose,
                                     irregular_images=args.irregular_images,
-                                    det_batch_size=args.det_batch_size)
+                                    det_batch_size=args.det_batch_size,
+                                    detector_weights=args.detector_weights)
     
     imagefacerecogniser.run()

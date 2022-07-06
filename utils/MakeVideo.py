@@ -98,17 +98,18 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps=
             rect = expandrect(rect, 0.6, image.shape)
             
             image = cv2.rectangle(image, (int(rect[0]), int(rect[1])), (int(rect[2]), int(rect[3])), TrackColour, 7)
-            image = cv2.putText(image, str(Entry[1]), (int(rect[0]) + 30, int(rect[1]) + 50), 0, 1, (0, 255, 0), 3)
+            
             if annotations is not None:
-                name = annotations[int(TrackID)]
-                image = cv2.putText(image, name, (int(rect[0]) + 30, int(rect[1]) + 80), 0, 1, (0, 255, 0), 3)
-                
+                name = annotations[int(TrackID)].replace('_', ' ')
+                image = cv2.putText(image, name, (int(rect[2]) + 30, int(rect[1])), 0, 1, TrackColour, 3)
+            else:
+                image = cv2.putText(image, str(Entry[1]), (int(rect[0]) + 30, int(rect[1]) + 50), 0, 1, TrackColour, 3)
             cv2.imwrite(os.path.join(temp_directory, Video, Frame), image)
 
         except:
             pdb.set_trace()
-    
-    os.mkdir(os.path.join(temp_directory, 'videos'))
+    if not os.path.isdir(os.path.join(temp_directory, 'videos')):
+        os.mkdir(os.path.join(temp_directory, 'videos'))
     
     # now make the video from the frames.
     os.system('ffmpeg -r '+str(fps)+' -start_number 0 -i ' + os.path.join(temp_directory, Video) + '/%06d.jpg -vf fps='+str(fps)+' ' + os.path.join(temp_directory,'videos', Video))

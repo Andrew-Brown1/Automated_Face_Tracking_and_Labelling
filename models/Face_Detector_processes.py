@@ -20,7 +20,7 @@ def detect_faces(args, episode, net, device, irregular_images=False):
     else:
         dataset = detection_downloaded_image_dir(os.path.join(args.temp_dir, episode))
 
-    
+
     dataloader = DataLoader(dataset, batch_size=args.det_batch_size, shuffle=False,
                             num_workers=int(args.num_workers), drop_last=False,
                             sampler=SequentialSampler(dataset))
