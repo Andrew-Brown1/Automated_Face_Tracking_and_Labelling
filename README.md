@@ -25,7 +25,7 @@ This repository contains the code for automatically tracking and annotating face
 ---
 1) Clone this repository
 2) Create directories: "../save_dir/", "../temporary_dir/", and "../weights_and_data/"
-3) Download the "weights" directory from this Google Drive, and place it in "../weights_and_data/"
+3) Download the "weights" directory from [this Google Drive](https://drive.google.com/drive/folders/180Kx3DH2gvqnMKBIn7baE6vr8KeLXKWM?usp=sharing), and place it in "../weights_and_data/"
 
 **Video Face Annotating - Demo**
 ---
