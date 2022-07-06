@@ -31,7 +31,8 @@ This repository contains the code for automatically tracking and annotating face
 
 **Video Face Annotating - Demo**
 ---
-For creating the video at the top of this README (video will be saved as "../save_dir/MF_vid/MF_vid_annotated.mp4"). First, download the demo data via ```./utils/download_demo_data.sh```, then run:
+For creating the video at the top of this README (video will be saved as "../save_dir/MF_vid/MF_vid_annotated.mp4"). 
++ First, download the demo data via ```./utils/download_demo_data.sh```, then run:
 ```
 python VideoFaceAnnotator.py --make_annotation_video True -demo_example True
 ```
