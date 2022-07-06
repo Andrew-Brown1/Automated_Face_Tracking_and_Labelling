@@ -81,33 +81,40 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps=
 
     for ind, LineEntry in enumerate(tqdm(FileLines)):
         
-        try:
 
-            Entry = LineEntry.split(',')
-            Frame = "%06d.jpg"%int(Entry[0])
-            image = cv2.imread(os.path.join(temp_directory, Video, Frame))
+        Entry = LineEntry.split(',')
+        Frame = "%06d.jpg"%int(Entry[0])
+        image = cv2.imread(os.path.join(temp_directory, Video, Frame))
 
-            rect = [int(float(Entry[2])),int(float(Entry[3])),int(float(Entry[2]))+int(float(Entry[4])),int(float(Entry[3]))+int(float(Entry[5]))]
+        rect = [int(float(Entry[2])),int(float(Entry[3])),int(float(Entry[2]))+int(float(Entry[4])),int(float(Entry[3]))+int(float(Entry[5]))]
 
-            TrackID = Entry[1]
-            if not TrackID in TrackColourDictionary.keys():
-                TrackColourDictionary[TrackID] = (round(random.random() * 255), round(random.random() * 255), round(random.random() * 255))
-                #TrackColourDictionary[TrackID] = (0,255,255)
-            TrackColour = TrackColourDictionary[TrackID]
+        TrackID =  Entry[1]
+        if annotations is not None:
+            track_color_ID = annotations[int(TrackID)]
+        else:
+            track_color_ID = Entry[1]
+        
+        if not track_color_ID in TrackColourDictionary.keys():
+            TrackColourDictionary[track_color_ID] = (round(random.random() * 255), round(random.random() * 255), round(random.random() * 255))
+            #TrackColourDictionary[TrackID] = (0,255,255)
+        TrackColour = TrackColourDictionary[track_color_ID]
 
-            rect = expandrect(rect, 0.6, image.shape)
+        rect = expandrect(rect, 0.6, image.shape)
+        
+        image = cv2.rectangle(image, (int(rect[0]), int(rect[1])), (int(rect[2]), int(rect[3])), TrackColour, 7)
+
+        if annotations is not None:
+            name = annotations[int(TrackID)].replace('_', ' ')
+            name_position = [int(rect[0]) + 10, int(rect[3]) + 40]
+            name_position[0] = max(20, name_position[0])
+            name_position[1] = min(image.shape[0]-40, name_position[1])
+            name_position = tuple(name_position)
             
-            image = cv2.rectangle(image, (int(rect[0]), int(rect[1])), (int(rect[2]), int(rect[3])), TrackColour, 7)
-            
-            if annotations is not None:
-                name = annotations[int(TrackID)].replace('_', ' ')
-                image = cv2.putText(image, name, (int(rect[2]) + 30, int(rect[1])), 0, 1, TrackColour, 3)
-            else:
-                image = cv2.putText(image, str(Entry[1]), (int(rect[0]) + 30, int(rect[1]) + 50), 0, 1, TrackColour, 3)
-            cv2.imwrite(os.path.join(temp_directory, Video, Frame), image)
+            image = cv2.putText(image, name, name_position, 0, 1, TrackColour, 3)
+        else:
+            image = cv2.putText(image, str(Entry[1]), (int(rect[0]) + 30, int(rect[1]) + 50), 0, 1, TrackColour, 3)
+        cv2.imwrite(os.path.join(temp_directory, Video, Frame), image)
 
-        except:
-            pdb.set_trace()
     if not os.path.isdir(os.path.join(temp_directory, 'videos')):
         os.mkdir(os.path.join(temp_directory, 'videos'))
     

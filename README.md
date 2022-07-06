@@ -4,23 +4,34 @@ This repository contains code for the paper "Automated Video Labelling: Identify
 
 **Summary**
 ---
-This repository contains the code for:
+This repository contains the code for automatically tracking and annotating faces in videos, given a set of directories containing images of people that could have been collected from image search engines (and so might include outliers):
 
-+ **Video Face Tracking**
-    - Given videos as input, compute face-tracks and ID representing features for all faces in videos
-+ **Image Face Recognising**
-    - Given face images as input, detect faces and compute ID representing features. Additionally remove outliers
 + **Video Face Annotating**
-    - Full Pipeline. Given videos and face images as input, annotate the face-tracks in the videos with the names of the people in the face images (as demonstrated in the video above)
+    - Given videos and face images as input, annotate the face-tracks in the videos with the names of the people in the face images (as demonstrated in the video above). This involves: 
+        * **Video Face Tracking** - computing the face-tracks for an input video
+        * **Face-Image Processing** - given a directory of images, detect and recognise faces, and optionally remove outliers
+        * **Face-Track Annotation** - Annotate the face-tracks with the names of the people in the face-images
+    
 
 
-**setup**
+**Setup**
 ---
 1) Clone this repository
 2) in the parent directory, create the directory "save_dir/"
 3) in the parent directory, create the directory "temporary_dir"
 4) in the parent directory, create the directory "weights_and_data/"
 5) Download the folder "weights" from this Google Drive, and place it in "weights_and_data/"
+
+**Video Face Annotating - Demo**
+---
+For creating the video at the top of this README:
++ download the "videos" directory and place it in "weights_and_data"
++ download the "face_images" directory and place it in "weights_and_data"
++ Run the following command, the video will be saved as "../save_dir/out/out_annotated.mp4"
+```
+python VideoFaceAnnotator.py --make_annotation_video True
+```
+
 
 **Video Face Annotating**
 ---
@@ -42,16 +53,6 @@ python VideoFaceAnnotator.py --make_annotation_video True
 ```
 python VideoFaceAnnotator.py --make_annotation_video True 
 ```
-**Video Face Annotating Example**
----
-+ For creating the video at the top of this README:
-    - download the "videos" directory and place it in "weights_and_data"
-    - download the "face_images" directory and place it in "weights_and_data"
-+ Run the following command, the video will be saved as "../save_dir/out/out_annotated.mp4"
-```
-python VideoFaceAnnotator.py --make_annotation_video True
-```
-
 
 
 ## Paper
