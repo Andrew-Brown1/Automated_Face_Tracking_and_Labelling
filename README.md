@@ -1,5 +1,5 @@
 # Automated Face Tracking and Labelling
-This repository contains code for the paper ["Automated Video Labelling: Identifying Faces by Corroborative Evidence"](https://arxiv.org/abs/2102.05645) (MIPR 2021 - winner of **_Best Student Paper_**). Given inputs of (1) person images containing outliers, and (2) a video, we present a method for computing and annotating face-tracks in the video with the names of the people in the images, as shown in the example output video below.
+This repository contains code for the paper: ["Automated Video Labelling: Identifying Faces by Corroborative Evidence"](https://arxiv.org/abs/2102.05645) (MIPR 2021 - winner of **_Best Student Paper_**). Given inputs of (1) person images containing outliers, and (2) video(s), we present a method for computing and annotating face-tracks in the video with the names of the people in the images, as shown in the example output video below.
 
 Input - Person Images (containing outliers)   
 :-------------------------:
@@ -31,13 +31,14 @@ This repository contains the code for automatically tracking and annotating face
 
 **Video Face Annotating - Demo**
 ---
-For creating the video at the top of this README (video will be saved as "../save_dir/MF_vid/MF_vid_annotated.mp4"). 
+For creating the video at the top of this README: 
 + First, download the demo data via ```./utils/download_demo_data.sh```, then run:
 ```
 python VideoFaceAnnotator.py --make_annotation_video True
 ```
+(video will be saved as "../save_dir/MF_vid/MF_vid_annotated.mp4")
 
-For annotating your own videos
+For annotating your own videos:
 + place the video(s) to be annotated in "../weights_and_data/videos/"
 + place the directories with person images in "../weights_and_data/person_images/"
 + Run the following:
