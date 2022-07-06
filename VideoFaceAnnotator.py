@@ -29,7 +29,6 @@ from ImageFaceRecognise import ImageFaceRecognise
 import argparse 
 import ImageProcessor
 import utils
-import pdb
 
 
 class VideoFaceAnnotator:
@@ -124,9 +123,7 @@ class VideoFaceAnnotator:
         # ================================================================================================
         self.track_annotator.run()
         
-        
-        pdb.set_trace()
-        
+            
         
 
 if __name__ == '__main__':
@@ -138,7 +135,7 @@ if __name__ == '__main__':
     parser.add_argument('--path_to_vids', default='../weights_and_data/videos/', help='path to directory containing videos to process (mp4)', type=str)
     parser.add_argument('--temp_dir', default='../temporary_dir', help='path to where temporary directory can be created and then deleted at end of process',
                         type=str)
-    parser.add_argument('--path_to_image_dirs', default='../weights_and_data/face_images/', help='path to parent directory of image-directories', type=str)
+    parser.add_argument('--path_to_image_dirs', default='../weights_and_data/person_images/', help='path to parent directory of image-directories', type=str)
     # options
     parser.add_argument('--irregular_images', default=True, help='the images in the directories are all different sizes. If set to true, the detector will not any image and use a batch size of 1. If False, the detector will batch the images and resize them according to the down_res argument', type=bool)
     parser.add_argument('--make_video', default=False, help='output the video of face tracks ', type=bool)

@@ -1,4 +1,3 @@
-import pdb
 import os
 import scipy.io
 import numpy as np
@@ -194,7 +193,7 @@ def WriteTracks(Tracks, Info, save_path, OriginalNames = None, num_zeros=5):
 
     output_tracks = []
     
-    with open(save_path[:-4]+'.txt', 'w+') as f:
+    with open(save_path[:-4]+'_face_detections.txt', 'w+') as f:
 
         for Detection in DetectionInfo:
             Det = Detection
@@ -205,9 +204,7 @@ def WriteTracks(Tracks, Info, save_path, OriginalNames = None, num_zeros=5):
             f.write('\n')
             output_tracks.append(Det[10])
             
-    with open(save_path[:-4]+'.pickle','wb') as f:
-        pickle.dump(output_tracks, f)
-    with open(save_path[:-4]+'_TrackFeats.pk','wb') as f:
+    with open(save_path[:-4]+'_face_track_aggregated_features.pk','wb') as f:
         pickle.dump(track_features, f)
 
 

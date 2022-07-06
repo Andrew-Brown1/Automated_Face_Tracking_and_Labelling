@@ -1,7 +1,6 @@
 import os
 import cv2
 import random
-import pdb
 from tqdm import tqdm
 from utils import extract_frames_from_video
 
@@ -74,7 +73,7 @@ def MakeVideo(Video, temp_directory, ResultsDirectory, original_video_path, fps=
     
 
     TrackColourDictionary = {}
-    with open(os.path.join(ResultsDirectory, Video[:-4]+'.txt')) as f:
+    with open(os.path.join(ResultsDirectory, Video[:-4]+'_face_detections.txt')) as f:
         FileLines = f.readlines()
 
     FileLines = [x.strip() for x in FileLines]

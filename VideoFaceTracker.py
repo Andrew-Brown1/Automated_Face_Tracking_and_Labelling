@@ -3,7 +3,6 @@ import os
 import torch
 import time
 import cv2
-import pdb
 import torch.nn as nn
 from pathlib import Path
 import pickle
@@ -62,6 +61,9 @@ class VideoFaceTracker:
         self.file_paths = utils.getListOfFiles(self.path_to_vids)
         
         self.timer = utils.Timer()
+        
+        if not os.path.isdir(os.path.join(save_path, 'videos_out')):
+            os.mkdir(os.path.join(save_path, 'videos_out'))
     
     
     def run(self):
@@ -79,7 +81,7 @@ class VideoFaceTracker:
                 
                 episode = full_episode.split('/')[-1]
 
-                save_path = os.path.join(self.save_path,episode[:-4])
+                save_path = os.path.join(self.save_path,'videos_out',episode[:-4])
                 if not os.path.isdir(save_path):
                     os.mkdir(save_path)
                 
@@ -88,18 +90,15 @@ class VideoFaceTracker:
                 self.temp_dir = os.path.join(self.OG_temp_dir,episode[:-4])
                 if not os.path.isdir(self.temp_dir):
                     os.mkdir(self.temp_dir)
-                    
-                # make the full save path if it doesn't exist
-                if not os.path.isdir(save_path):
-                    save_folder = Path(save_path)
-                    save_folder.mkdir(exist_ok=True, parents=True)
+                
 
                 # do not continue if:
 
                 proceed = True
-                if os.path.isfile(os.path.join(save_path, episode[:-4] + '.pickle')):
+                if os.path.isfile(os.path.join(save_path,  episode[:-4] + '.pickle')):
                     # this video has already been processed
                     proceed = False
+
 
                 if proceed:
                     
@@ -109,7 +108,7 @@ class VideoFaceTracker:
                     self.timer._start('frame extraction',self.verbose)
                     
                     # extract the frames using ffmpeg
-                    utils.extract_frames_from_video(full_episode, self.temp_dir, temp_file_name)
+                    vid_fps = utils.extract_frames_from_video(full_episode, self.temp_dir, temp_file_name)
                     
                     self.timer._log_end('frame extraction', self.verbose)
                     

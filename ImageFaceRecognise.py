@@ -9,7 +9,6 @@ this also has a feature of "clean" which will do the famous / non-famous part
 """
 
 import os
-import pdb 
 import pickle
 import torch
 import models
@@ -89,6 +88,9 @@ class ImageFaceRecognise:
         
         self.OutlierDetector = ImageProcessor.FaceOutlierDetection()
         
+        if not os.path.isdir(os.path.join(save_path, 'person_images_out')):
+            os.mkdir(os.path.join(save_path, 'person_images_out'))
+        
     def _prepare_outputs(self,outputs, dominant_class, outlier_labels):
         """
         prepare the outputs for the image face recognise
@@ -126,7 +128,7 @@ class ImageFaceRecognise:
                 
                 # do not continue if:
                 proceed = True
-                if os.path.isfile(os.path.join(self.save_path, image_dir + '.pk')):
+                if os.path.isfile(os.path.join(self.save_path, 'person_images_out', image_dir + '.pk')):
                     # this video has already been processed
                     proceed = False
                 
@@ -169,7 +171,7 @@ class ImageFaceRecognise:
                     
                     outputs = self._prepare_outputs(Feature_Info, dominant_class, outlier_labels)
                                                             
-                    with open(os.path.join(self.save_path, image_dir + '.pk'),'wb') as f:
+                    with open(os.path.join(self.save_path, 'person_images_out', image_dir + '.pk'),'wb') as f:
                         pickle.dump(outputs, f)
 
 
@@ -179,7 +181,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     # paths
-    parser.add_argument('--path_to_image_dirs', default='../weights_and_data/face_images/', help='path to parent directory of image-directories', type=str)
+    parser.add_argument('--path_to_image_dirs', default='../weights_and_data/person_images/', help='path to parent directory of image-directories', type=str)
     parser.add_argument('--save_path', type=str,default='../save_dir/', help='path to where all outputs are saved')
     # options
     parser.add_argument('--irregular_images', default=True, help='the images in the directories are all different sizes. If set to true, the detector will not any image and use a batch size of 1. If False, the detector will batch the images and resize them according to the down_res argument', type=bool)
