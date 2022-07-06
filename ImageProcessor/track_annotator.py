@@ -12,7 +12,7 @@ class TrackAnnotator:
                  path_to_input,
                  temp_dir,
                  face_verification_threshold=0.7, 
-                 query_expansion_threshold=0.7,
+                 query_expansion_threshold=0.6,
                  only_use_non_outlier_faces=True,
                  min_track_duration=5,
                  make_annotation_video=False):
@@ -190,7 +190,6 @@ class TrackAnnotator:
             # annotate using face
             # ------------------------------------------------
             annotations = self._ANNOTATE_tracks(video_track_features)
-
             # ------------------------------------------------
             # query expansion
             # ------------------------------------------------
@@ -198,12 +197,12 @@ class TrackAnnotator:
             query_expanded_face_dict = self._UTILS_expand_face_dict(annotations, video_track_features) 
             # (2) re-annotate
             annotations = self._ANNOTATE_tracks(video_track_features, face_dict_features=query_expanded_face_dict)
-           
+
 
             # ------------------------------------------------
             # optionally make an annotation video
             # ------------------------------------------------
-            
+
             if self.make_annotation_video:
                 utils.MakeVideo(video, os.path.join(self.temp_dir, video[:-4]), os.path.join(self.save_path,video[:-4]), os.path.join(self.path_to_vids,video), annotations=annotations)
             

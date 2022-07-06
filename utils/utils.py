@@ -261,6 +261,9 @@ def extract_frames_from_video(full_episode, temp_dir, temp_file_name):
     vid = cv2.VideoCapture(full_episode)
     vid_resolution = [int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))]
     vid_fps = vid.get(cv2.CAP_PROP_FPS)
+    
+    if not os.path.isdir(temp_dir):
+        os.mkdir(temp_dir)
 
     # (b) extract the frames (if not done already)    
     if not os.path.isdir(os.path.join(temp_dir, temp_file_name)):

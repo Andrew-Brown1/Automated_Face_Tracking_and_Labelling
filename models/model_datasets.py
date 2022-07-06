@@ -71,8 +71,9 @@ class detection_downloaded_image_dir(Dataset):
         return len(self.test_dataset)
 
     def __getitem__(self, index):
+        
+        image_path = os.path.join(self.root_image_dir,self.test_dataset[index])
 
-        image_path = self.test_dataset[index]
         img_raw = cv2.imread(image_path, cv2.IMREAD_COLOR)
         img = np.float32(img_raw)
         self.scale = torch.Tensor([img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
@@ -87,12 +88,10 @@ class detection_downloaded_image_dir(Dataset):
     def GetImages(self):
 
         dataset = []
-        images = [f for f in os.listdir(self.root_image_dir) if 'clean' in f]
+        images = [f for f in os.listdir(self.root_image_dir)]
         for ind, image in enumerate(images):
 
-            if image[-3:] == 'jpg' or image[-3:] == 'png':
-
-                dataset.append(os.path.join(self.root_image_dir, image))
+            dataset.append(image)
 
         self.test_dataset = dataset
         
@@ -118,6 +117,7 @@ class Extract_Dataset(Dataset):
 
         imagepath = self.dataset[index][0]
         ROI = self.dataset[index][1]
+
         image = PIL.Image.open(imagepath)
         try:
             image = self.preprocess(image, ROI, self.bbx_extension)
@@ -132,7 +132,6 @@ class Extract_Dataset(Dataset):
         ROIs = []
         confs = []
 
-        
         face_info = self.detection_info
 
         for frame in face_info:
