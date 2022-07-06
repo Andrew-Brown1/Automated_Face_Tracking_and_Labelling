@@ -1,9 +1,13 @@
 # Automated Face Tracking and Labelling
-This repository contains code for the paper "Automated Video Labelling: Identifying Faces by Corroborative Evidence" (MIPR 2021). This includes code for annotating face-tracks in videos with names, given the videos, and face-images (can include outliers) as inputs. 
+This repository contains code for the paper ["Automated Video Labelling: Identifying Faces by Corroborative Evidence"](https://arxiv.org/abs/2102.05645) (MIPR 2021 - winner of _Best Student Paper_). 
+
+Input Video             |  Output Annotated Video
+:-------------------------:|:-------------------------:
+![MF_OG](https://user-images.githubusercontent.com/44160842/177526502-509af5ce-37a6-4207-ade1-b49ca398a1b0.gif)  |  ![annotated_gif](https://user-images.githubusercontent.com/44160842/177524977-7bedc208-41dc-4253-b619-e0c8b6b9eaac.gif)
 
 
-https://user-images.githubusercontent.com/44160842/177522908-19a2d689-b21c-4ca9-90ba-faaf9fc78e18.mp4
 
+This includes code for annotating face-tracks in videos with names, given the videos, and face-images (can include outliers) as inputs. 
 
 
 **Summary**
