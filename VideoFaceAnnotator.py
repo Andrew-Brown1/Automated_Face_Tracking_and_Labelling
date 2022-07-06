@@ -158,12 +158,8 @@ if __name__ == '__main__':
     parser.add_argument('--face_annotation_QE_threshold', default=0.5, type=int,help='the face annotating threshold for query expanded bank')
     parser.add_argument('--only_use_non_outlier_faces', default=True, type=int,help='assuming that the face-images contain noise. When set to True, automatic outlier detection is used. If set to False, then all images in the face images directories are used')
     
-    parser.add_argument('--demo_example', default=False, type=int,help='download and annotate the demo data from Github page')
-
     args = parser.parse_args()
-    
-    # if --demo_example is set to true - download the data for the demo example
-    
+        
     video_face_annotator = VideoFaceAnnotator(save_path=args.save_path,
                                     path_to_vids=args.path_to_vids,
                                     temp_dir = args.temp_dir,

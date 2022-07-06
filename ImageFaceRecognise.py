@@ -147,7 +147,7 @@ class ImageFaceRecognise:
                     # ----------------------------------------------------------
                     # (2) extract ID discriminating features
                     # ----------------------------------------------------------
-                    
+
                     self.timer._start('extracting features',self.verbose)
 
                     Feature_Info = models.Extract_Features(self, image_dir, detection_dict, self.model)
