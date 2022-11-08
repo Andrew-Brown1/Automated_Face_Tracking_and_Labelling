@@ -1,12 +1,3 @@
-"""
-
-This script contains an object ImageFaceRecognise 
-
-when used, this object will iterate over a set of directories of face-images, and ouput some meta data (detections, features, whether to use or not, as well as aggregated)
-
-this also has a feature of "clean" which will do the famous / non-famous part 
-
-"""
 
 import os
 import pickle
