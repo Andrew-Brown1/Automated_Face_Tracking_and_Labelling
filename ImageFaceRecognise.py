@@ -30,8 +30,6 @@ class ImageFaceRecognise:
                  detector_weights=''):
         
         utils.auto_init_args(self)
-
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu)
         print("Using GPUs: ", os.environ['CUDA_VISIBLE_DEVICES'])
 
         # ================================================================================================

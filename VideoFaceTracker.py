@@ -34,7 +34,6 @@ class VideoFaceTracker:
         utils.auto_init_args(self)
         
         self.OG_temp_dir = copy.deepcopy(self.temp_dir)
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu)
         
         print("Using GPUs: ", os.environ['CUDA_VISIBLE_DEVICES'])
 
